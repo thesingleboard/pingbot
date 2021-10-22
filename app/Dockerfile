@@ -10,9 +10,8 @@ RUN mkdir -p $INSTALL_PATH
 WORKDIR $INSTALL_PATH
 
 RUN pip3 install --upgrade pip
-ADD requirements.txt /
-
-RUN pip3 install -r /requirements.txt
+#ADD requirements.txt /
+#RUN pip3 install -r /requirements.txt
 
 ADD pingbot.py $INSTALL_PATH
 ADD pingbot_lib.py $INSTALL_PATH
@@ -23,4 +22,4 @@ ADD settings.py $INSTALL_PATH
 #API - secure
 #EXPOSE 10500
 
-#ENTRYPOINT["python3 run-app.py"]
+ENTRYPOINT ["python3","run-app.py"]

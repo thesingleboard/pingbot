@@ -4,18 +4,19 @@ import socket
 import time
 import calendar
 
-#api version
-API = os.getenv('API',None)
+#git URL
+GITURL = os.getenv('GITURL',None)
 
 #hostname
 HOSTNAME = socket.gethostname()
 
-#DHT11 or DHT22
-SENSORTYPE = os.getenv('SENSORTYPE',None)
+#Git Username
+GITUSER = os.getenv('GITUSER',None)
 
-#Celcius or Fahrenheit
-SCALE = os.getenv('SCALE',None)
+#GIT user token. Needs to be generated in Git or can be plain password.
+GITTOKEN = os.getenv('GITTOKEN',None)
 
+"""
 #The GPIO pins to use for sensors
 PINS = os.getenv('PINS',None)
 #Take comma seperated string and turn into list so it can be used.
@@ -53,20 +54,10 @@ STARTOFTIME = calendar.timegm(time.gmtime())
 #DC = 23
 #SPI_PORT = 0
 #SPI_DEVICE = 0
+"""
 
-CONFIG = {  'API':API,
+CONFIG = {  'GITURL':GITURL,
             'HOSTNAME':HOSTNAME,
-            'SENSORTYPE':SENSORTYPE,
-            'SCALE':SCALE,
-            'PINS':PINS,
-            'SLEEP':SLEEP,
-            'RST':RST,
-            'INTERVAL':INTERVAL,
-            'PHYSNET':PHYSNET,
-            'MQTTBROKER':MQTTBROKER,
-            'MQTTPORT':MQTTPORT,
-            'SSLCERTPATH':SSLCERTPATH,
-            'SSLCERT':SSLCERT,
-            'STATUSINTERVAL':STATUSINTERVAL,
-            'STARTOFTIME':STARTOFTIME
+            'GITUSER':GITUSER,
+            'GITTOKEN':GITTOKEN
             }
