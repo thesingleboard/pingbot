@@ -16,6 +16,12 @@ GITUSER = os.getenv('GITUSER',None)
 #GIT user token. Needs to be generated in Git or can be plain password.
 GITTOKEN = os.getenv('GITTOKEN',None)
 
+#GIT root direcrtory. Directory where git clones repos to
+GITROOT = os.getenv('GITROOT',os.environ['HOME'])
+
+#ip file name path within the gitroot
+IPFILE = os.getenv('HOSTS',hosts)
+
 """
 #The GPIO pins to use for sensors
 PINS = os.getenv('PINS',None)
@@ -59,5 +65,6 @@ STARTOFTIME = calendar.timegm(time.gmtime())
 CONFIG = {  'GITURL':GITURL,
             'HOSTNAME':HOSTNAME,
             'GITUSER':GITUSER,
-            'GITTOKEN':GITTOKEN
+            'GITTOKEN':GITTOKEN,
+            'GITROOT':GITROOT
             }

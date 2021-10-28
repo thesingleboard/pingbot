@@ -3,15 +3,15 @@ MAINTAINER Jonathan Arrance <jonathan@thesingleboard.io>
 
 ENV INSTALL_PATH /opt/pingbot
 
-RUN apt-get update -y;apt-get install -y curl;apt-get install -y python3-pip;apt install -y python3-dev;apt install -y python3-openssl
+RUN apt-get update -y;apt-get install -y curl;apt-get install -y python3-pip;apt install -y python3-dev
 
 RUN mkdir -p $INSTALL_PATH
 
 WORKDIR $INSTALL_PATH
 
 RUN pip3 install --upgrade pip
-#ADD requirements.txt /
-#RUN pip3 install -r /requirements.txt
+ADD requirements.txt /
+RUN pip3 install -r /requirements.txt
 
 ADD pingbot.py $INSTALL_PATH
 ADD pingbot_lib.py $INSTALL_PATH
