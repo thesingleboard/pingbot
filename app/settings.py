@@ -7,6 +7,9 @@ import calendar
 #git URL
 GITURL = os.getenv('GITURL',None)
 
+#Should the repo get cloned
+CLONEREPO = os.getenv('CLONEREPO',False)
+
 #hostname
 HOSTNAME = socket.gethostname()
 
