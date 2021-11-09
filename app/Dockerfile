@@ -19,7 +19,7 @@ ADD run-app.py $INSTALL_PATH
 ADD entrypoint.sh $INSTALLPATH
 ADD settings.py $INSTALL_PATH
 
-#API - secure
-#EXPOSE 10500
+#PROM port
+EXPOSE 9002
 
 ENTRYPOINT ["python3","run-app.py"]

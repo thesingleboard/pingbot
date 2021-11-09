@@ -9,6 +9,11 @@ GITURL = os.getenv('GITURL',None)
 
 #Should the repo get cloned
 CLONEREPO = os.getenv('CLONEREPO',False)
+if type(CLONEREPO) != 'bool':
+    if CLONEREPO == 'False':
+        CLONEREPO = False
+    else:
+        CLONEREPO = True
 
 #hostname
 HOSTNAME = socket.gethostname()
@@ -23,7 +28,16 @@ GITTOKEN = os.getenv('GITTOKEN',None)
 GITROOT = os.getenv('GITROOT',os.environ['HOME'])
 
 #ip file name path within the gitroot
-IPFILE = os.getenv('HOSTS',hosts)
+HOSTS = os.getenv('HOSTS',None)
+
+#The time interval in seconds
+INTERVAL = os.getenv('INTERVAL',10)
+INTERVAL = int(INTERVAL)
+
+#How many chunks to split Hosts list into
+#Each chunk will have 20 hosts in it.
+SPLITFACTOR = os.getenv('SPLITFACTOR',20)
+SPLITFACTOR = int(SPLITFACTOR)
 
 """
 #The GPIO pins to use for sensors
@@ -69,5 +83,9 @@ CONFIG = {  'GITURL':GITURL,
             'HOSTNAME':HOSTNAME,
             'GITUSER':GITUSER,
             'GITTOKEN':GITTOKEN,
-            'GITROOT':GITROOT
+            'GITROOT':GITROOT,
+            'HOSTS':HOSTS,
+            'CLONEREPO':CLONEREPO,
+            'INTERVAL':INTERVAL,
+            'SPLITFACTOR':SPLITFACTOR
             }

@@ -1,6 +1,7 @@
 import os
 import logging
 import re
+import settings
 from git import Repo
 from pythonping import ping
 from prometheus_client import start_http_server
@@ -10,17 +11,32 @@ from prometheus_client import Counter
 class Operations():
     
     def __init__(self):
-        pass
+        self.split = settings.CONFIG['SPLITFACTOR']
+        self.giturl = settings.CONFIG['GITURL']
+        self.gitroot = settings.CONFIG['GITROOT']
     
     def git_clone(self,input_dict):
         try:
-            Repo.clone_from(settings.CONFIG['GITURL'], settings.CONFIG['GITROOT'], recursive=True)
+            Repo.clone_from(self.giturl, self.gitroot, recursive=True)
         except Exception as e:
             logging.error(e)
             raise e
     
     def split_up_list(self,input_list):
-        pass
+        """
+        DESC: Chunk up the list of IP and hosts
+        INPUT: input_list - list of dict - ip
+                                         - host
+        OUTPUT: out_list - list of lists
+        NOTE:
+        """
+        try:
+            logging.info("Splitting up the list of hosts and IPs.")
+            return [input_list[i:i + self.split] for i in range(0, len(input_list), self.split)]
+        except Exception as e:
+            logging.error("Could not split up the host ip list.")
+            logging.error(e)
+        
     
     def read_hosts_file(self,host_file):
         """
@@ -33,19 +49,24 @@ class Operations():
         comment = "#+"
         local = 'localhost+'
         colon = '^:+'
+        blank = '\s'
         valid_ip = "^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$"
         out = []
+        
         try:
             file = open(host_file,'r')
             for line in file.readlines():
                 if(re.search(comment,line) or re.search(local,line) or re.search(colon,line)):
                     continue
                 else:
-                    line = line.strip().split()
-                    if(re.search(valid_ip,line[0])):
-                        out.append({'ip':line[0],'hostname':line[1]})
-                    else:
-                        out.append({'ip':line[1],'hostname':line[0]})
+                    try:
+                        line = line.strip().split()
+                        if(re.search(valid_ip,line[0])):
+                            out.append({'ip':line[0],'hostname':line[1]})
+                        else:
+                            out.append({'ip':line[1],'hostname':line[0]})
+                    except Exception as e:
+                        pass
         except IOError as i:
             logging.error('Could not open the file %s'%host_file)
             raise i
@@ -60,7 +81,7 @@ class Operations():
         NOTE: True if 
         """
         try:
-            pinghost = os.system("ping -c 1 " + str(ip))
+            pinghost = os.system("ping -c 1 %s > /dev/null 2>&1"%(str(ip)))
         except Exception as e:
             logging.error('Could not ping the host %s.'%ip)
             raise e
@@ -75,88 +96,33 @@ class Prometheus():
     
     def __init__(self):
         logging.info("Starting Prometheus scrape endpoint")
-    
-    
-    def start_server(self,host):
-        start_http_server(9002)
-        self.total_success = Counter('pingbot_success_%s'%(host),'Successful ping')
-        self.total_fail = Counter('pingbot_fail_%s'%(host),'Failure ping')
-        self.ping = Guage('ping_%s'%(host),'Ping host %s'%(host))
-    
+        #start_http_server(9002)
+
     def start_server(self):
         start_http_server(9002)
-        self.used_mem = Gauge('speedbot_used_memory', 'Speedbot Used Memory')
-        self.free_mem = Gauge('speedbot_free_memory', 'Speedbot Free Memory')
-        self.upload_speed = Gauge('speedbot_upload_in_Mbps', 'Upload speed in Mbps')
-        self.download_speed = Gauge('speedbot_download_in_Mbps', 'Download speed in Mbps')
-        self.packetloss = Gauge('speedbot_packetloss', 'Packet loss')
-        self.jitter = Gauge('speedbot_jitter', 'jitter')
+        self.total_success = Counter('pingbot_total_success','Pingbot total successful ping',['hostname','ip'])
+        self.total_fail = Counter('pingbot_total_fail','Pingbot total failed ping',['hostname','ip'])
+        self.ping = Gauge('pingbot_ping', 'The current Pingbot ping job.',['hostname','ip'])
     
-    def network_spec(self,input_dict):
+    def current_ping(self,input_dict):
         """
-        DESC: Emit the used and free memory
-        INPUT: input_dict - packetloss
-                          - jitter
+        DESC: Emit the current ping success
+        INPUT: input_dict - hostname - hostname
+                                     - ip     - ip address
+                                     - status - True/False
         OUTPUT: None
         NOTE: This is a Gauge
         """
+        status = 0.0
+        if input_dict['status'] == True:
+            print("dingdong")
+            status = 1.0
+        
         try:
-            logging.info("Emitting network packetloss.")
-            self.packetloss.set(input_dict['packetloss'])
+            logging.info("Emitting ping metrics.")
+            self.ping.labels(input_dict['hostname'],input_dict['ip']).set(status)
+            self.total_success.labels(input_dict['hostname'],input_dict['ip']).inc()
         except Exception as e:
+            self.ping.total_fail(input_dict['hostname'],input_dict['ip']).inc()
             logging.error(e)
-            logging.error("Could not emit the network packetloss.")
-            
-        try:
-            logging.info("Emitting network jitter.")
-            self.jitter.set(input_dict['jitter'])
-        except Exception as e:
-            logging.error(e)
-            logging.error("Could not emit the network jitter.")
-        
-        
-    def memory(self,input_dict):
-        """
-        DESC: Emit the used and free memory
-        INPUT: input_dict - free
-                          - used
-        OUTPUT: None
-        NOTE: This is a Gauge
-        """
-        try:
-            logging.info("Emitting the used memory.")
-            self.used_mem.set(input_dict['used'])
-        except Exception as e:
-            logging.warn(e)
-            logging.warn("Could not gauge used memory.")
-        
-        try:
-            logging.info("Emitting the free memory.")
-            self.free_mem.set(input_dict['free'])
-        except Exception as e:
-            logging.warn(e)
-            logging.warn("Could not gauge free memory.")
-        
-    def network_speed(self,input_dict):
-        """
-        DESC: Emit the upload and download speed measured by the speedbot.
-        INPUT: input_dict - upload
-                          - download
-        OUTPUT: None
-        NOTE: This is a Gauge
-        """
-        try:
-            logging.info("Emitting upload speed.")
-            self.upload_speed.set(input_dict['upload'])
-        except Exception as e:
-            logging.warn(e)
-            logging.warn("Could not gauge upload speed.")
-        
-        try:
-            logging.info("Emitting download speed.")
-            self.download_speed.set(input_dict['download'])
-        except Exception as e:
-            logging.warn(e)
-            logging.warn("Could not gauge download speed.")
-    
-    
+            logging.error("Could not emit the ping metric.")
