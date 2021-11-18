@@ -47,30 +47,38 @@ class Operations():
         NOTE: Get rid of the cruft in the file
         """
         comment = "#+"
-        local = 'localhost+'
-        colon = '^:+'
-        blank = '\s'
+        local = "localhost+"
+        colon = "^:+"
+        blank = "\s+"
         valid_ip = "^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$"
+        nonprodhost = "empty/\d+"
         out = []
         
         try:
             file = open(host_file,'r')
             for line in file.readlines():
+                out_dict = {}
                 if(re.search(comment,line) or re.search(local,line) or re.search(colon,line)):
                     continue
                 else:
                     try:
                         line = line.strip().split()
                         if(re.search(valid_ip,line[0])):
-                            out.append({'ip':line[0],'hostname':line[1]})
+                            #out.append({'ip':line[0],'hostname':line[1]})
+                            out_dict = {'ip':line[0],'hostname':line[1],'production':True}
                         else:
-                            out.append({'ip':line[1],'hostname':line[0]})
+                            #out.append({'ip':line[1],'hostname':line[0]})
+                            out_dict = {'ip':line[1],'hostname':line[0],'production':True}
                     except Exception as e:
                         pass
+
+                    if re.search(non-prod-host,out_dict['hostname']):
+                        out_dict['production'] = False
+
         except IOError as i:
             logging.error('Could not open the file %s'%host_file)
             raise i
-        
+
         return out
     
     def ping(self,ip):

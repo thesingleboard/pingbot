@@ -1,2 +1,2 @@
 #!/bin/bash
-python3 pingbot.py &
+python3 /opt/pingbot/pingbot.py &

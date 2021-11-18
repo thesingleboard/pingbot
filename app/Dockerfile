@@ -3,7 +3,7 @@ MAINTAINER Jonathan Arrance <jonathan@thesingleboard.io>
 
 ENV INSTALL_PATH /opt/pingbot
 
-RUN apt-get update -y;apt-get install -y curl;apt-get install -y python3-pip;apt install -y python3-dev
+RUN apt-get update -y;apt-get install -y curl;apt-get install -y python3-pip;apt install -y python3-dev;apt install -y git
 
 RUN mkdir -p $INSTALL_PATH
 
