@@ -51,7 +51,7 @@ class Operations():
         colon = "^:+"
         blank = "\s+"
         valid_ip = "^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$"
-        nonprodhost = "empty/\d+"
+        nonprodhost = "empty+"
         out = []
         
         try:
@@ -63,17 +63,23 @@ class Operations():
                 else:
                     try:
                         line = line.strip().split()
+
+                        #check for blank lines and ignore
+                        if len(line) == 0:
+                            continue
+
                         if(re.search(valid_ip,line[0])):
-                            #out.append({'ip':line[0],'hostname':line[1]})
                             out_dict = {'ip':line[0],'hostname':line[1],'production':True}
                         else:
-                            #out.append({'ip':line[1],'hostname':line[0]})
                             out_dict = {'ip':line[1],'hostname':line[0],'production':True}
                     except Exception as e:
-                        pass
+                        logging.error(e)
+                        print(e)
 
-                    if re.search(non-prod-host,out_dict['hostname']):
+                    if re.search(nonprodhost,out_dict['hostname']):
                         out_dict['production'] = False
+                    
+                    out.append(out_dict)
 
         except IOError as i:
             logging.error('Could not open the file %s'%host_file)

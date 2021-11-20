@@ -12,7 +12,6 @@ pr = prom()
 o = op()
 
 def pinghost(input_list):
-    
     for host in input_list:
         success = o.ping(host['ip'])
         if success:
@@ -55,17 +54,17 @@ def main():
         except Exception as e:
             logging.error("Could not split up the ip list.")
             logging.error(e)
-        
+
         for chunk in split_list:
             pinghost(chunk)
-    
+
         """
         try:
             process = [multiprocessing.Process(target=pinghost, args=(chunk,)) for chunk in split_list]
-        
+
             for p in process:
                 p.start()
-        
+
             for p in process:
                 p.join()
                 p.terminate()

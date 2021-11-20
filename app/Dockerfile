@@ -22,4 +22,4 @@ ADD settings.py $INSTALL_PATH
 #PROM port
 EXPOSE 9002
 
-ENTRYPOINT ["python3","run-app.py"]
+ENTRYPOINT ["python3","run_app.py"]
